@@ -18,7 +18,7 @@ class World(object):
         self.height = height
         self.worldType = worldType
         self.seed = seed
-        self.layers = [WorldLayer(self, l, self.width, self.height) for l in xrange(Const.NUM_LAYERS)]
+        self.layers = [WorldLayer(self, l, self.width, self.height) for l in range(Const.NUM_LAYERS)]
 
     def isValidCoords(self, loc, l=1):
         '''Returns True if the given block coords refer to a chunk that actually exists, False otherwise. Layer can be specified as the third element in the location tuple or as an argument.'''
@@ -42,7 +42,7 @@ class World(object):
         if self.isValidCoords(coords, l):
 
             # If given a string, get the model it refers to.
-            if isinstance(blockType, basestring):
+            if isinstance(blockType, str):
                 blockType = State().blockModels[blockType]
 
             return self.layers[l].setBlockAt(blockType, coords)
@@ -61,7 +61,8 @@ class World(object):
         else:
             return None
 
-    def isEmptyAt(self, (x, y), l=1):
+    def isEmptyAt(self, p, l=1):
+        x, y = p
         x = int(x)
         y = int(y)
         if self.isValidCoords((x, y), l):
@@ -69,7 +70,8 @@ class World(object):
         else:
             return None
 
-    def isSolidAt(self, (x, y), l=1):
+    def isSolidAt(self, p, l=1):
+        x, y = p
         x = int(x)
         y = int(y)
         if self.isValidCoords((x, y), l):
@@ -79,7 +81,7 @@ class World(object):
 
     def generate(self):
         '''Generates the world.'''
-        genlayers = [None for i in xrange(Const.NUM_LAYERS)]
+        genlayers = [None for i in range(Const.NUM_LAYERS)]
         genlayers[0] = WorldGen(self.width, self.height, seed=self.seed)
         genlayers[1] = WorldGen(self.width, self.height, seed=self.seed)
         if self.worldType == 'SINE':
@@ -102,10 +104,10 @@ class World(object):
             genlayers[1].rect(State().blockModels['dirt'], (0, 0), (self.width, self.height//2))
 
         # Copy the worldgen array into the world
-        for l in xrange(len(genlayers)):
+        for l in range(len(genlayers)):
             try:
-                for x in xrange(self.width):
-                    for y in xrange(self.height):
+                for x in range(self.width):
+                    for y in range(self.height):
                         self.layers[l].setBlockAtUnsafe(genlayers[l].a[x][y], (x, y))
             except AttributeError:
                 pass

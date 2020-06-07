@@ -19,8 +19,9 @@ class WorldGen(object):
         self.b = State().blockModels
         self.a = numpy.empty([self.w, self.h], dtype=type(self.b['air']))
 
-    def isValidCoords(self, (x, y)):
+    def isValidCoords(self, p):
         '''Returns True if the given block coords are within the world size, False otherwise.'''
+        x, y = p
         return 0 <= x and x < self.w and 0 <= y and y < self.h
 
     def setBlocks(self, coords, blockType=None):
@@ -35,7 +36,7 @@ class WorldGen(object):
         '''Fills the array with the given block type (air by default).'''
         if blockType is None:
             blockType = self.b['air']
-        coords = [(x, y) for y in xrange(self.h) for x in xrange(self.w)]
+        coords = [(x, y) for y in range(self.h) for x in range(self.w)]
         self.setBlocks(coords, blockType)
 
     def rect(self, blockType=None, p0=None, p1=None):
@@ -45,28 +46,28 @@ class WorldGen(object):
         if p1 is None: p1 = (self.w, self.h)
         x0, y0 = p0
         x1, y1 = p1
-        coords = [(x, y) for y in xrange(y0, y1) for x in xrange(x0, x1)]
+        coords = [(x, y) for y in range(y0, y1) for x in range(x0, x1)]
         self.setBlocks(coords, blockType)
 
     def sineMask(self):
         '''Generates a sum of randomized sine waves and deletes all blocks above it.'''
         self.sineNumbers = []
         rand.seed(self.seed)
-        for n in xrange(10):
+        for n in range(10):
             self.sineNumbers.append((rand.randint(1, 20), rand.randint(1, 5), rand.randint(-10, 10)))
         coords = []
-        for x in xrange(self.w):
+        for x in range(self.w):
             height = self.h / 2
             for s in self.sineNumbers:
                 height += math.sin(x/s[0])*s[1]+s[2]
-            for y in xrange(self.h):
+            for y in range(self.h):
                 if y > height:
                     coords.append((x, y))
         self.setBlocks(coords, self.b['air'])
 
     def splotches(self, count=1, **kwargs):
         '''Draws the given number of splotches.'''
-        for i in xrange(count):
+        for i in range(count):
             self.splotch(**kwargs)
 
     def splotch(self, blockType=None, minSize=4, maxSize=20):
@@ -91,8 +92,8 @@ class WorldGen(object):
         air = self.b['air']
         dirt = self.b['dirt']
         coords = []
-        for x in xrange(self.w):
-            for y in xrange(height, self.h):
+        for x in range(self.w):
+            for y in range(height, self.h):
                 block = self.a[x][y]
                 if block == dirt:
                     openAir = False
@@ -106,7 +107,7 @@ class WorldGen(object):
 
     def genCaves(self, count=1):
         '''Draws the given number of caves.'''
-        for i in xrange(count):
+        for i in range(count):
             self.genCave()
 
     def genCave(self):
@@ -125,7 +126,7 @@ class WorldGen(object):
         coords = set(Util.line((x0, y0), (x1, y1)))
 
         # Perform cave expansion iterations
-        for e in xrange(expansions):
+        for e in range(expansions):
             newcoords = set()
             for p in coords:
                 for ap in Util.getAdjacentCoords(p, world=self):

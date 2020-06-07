@@ -20,7 +20,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "dhp", ["help", "worldtype=", "seed="])
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         sys.exit(2)
 
     worldOpts = {}

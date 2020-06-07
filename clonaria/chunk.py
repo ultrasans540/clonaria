@@ -14,7 +14,7 @@ class Chunk(object):
         self.world = world
         self.layer = layer
         self.location = location
-        self.blocks = numpy.array([[None for y in xrange(Const.CHUNK_SIZE)] for x in xrange(Const.CHUNK_SIZE)])
+        self.blocks = numpy.array([[None for y in range(Const.CHUNK_SIZE)] for x in range(Const.CHUNK_SIZE)])
         self.blockData = {} # Dict with block location tuple as key and a dict of special data as the value.
 
         self.visible = False
@@ -26,7 +26,8 @@ class Chunk(object):
     def __repr__(self):
         return "{}".format(self.location)
 
-    def getBlockAt(self, (x, y)):
+    def getBlockAt(self, p):
+        x, y = p
         return self.blocks[x][y]
 
     def setBlockAt(self, blockType, coord):
@@ -66,8 +67,8 @@ class Chunk(object):
     def onVisible(self):
         self.visible = True
 
-        for x in xrange(Const.CHUNK_SIZE):
-            for y in xrange(Const.CHUNK_SIZE):
+        for x in range(Const.CHUNK_SIZE):
+            for y in range(Const.CHUNK_SIZE):
                 # Create a new sprite if we're not using air
                 newBlock = self.blocks[x][y]
                 if newBlock.get('type') != 'air':
@@ -81,7 +82,7 @@ class Chunk(object):
 
     def prepareDraw(self):
         '''Prepares all block sprites in the chunk to be drawn to the screen by updating their positions and sizes.'''
-        for (cx, cy), s in self.blockSprites.iteritems():
+        for (cx, cy), s in iter(self.blockSprites.items()):
             cs = Const.CHUNK_SIZE
             x = self.location[0]*cs + cx
             y = self.location[1]*cs + cy

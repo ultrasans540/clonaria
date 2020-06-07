@@ -20,7 +20,7 @@ class WorldLayer(object):
         self.width = width
         self.height = height
 
-        self.chunks = numpy.array([[Chunk(self.world, self.layer, (x, y)) for y in xrange(int(math.ceil(self.height / Const.CHUNK_SIZE)))] for x in xrange(int(math.ceil(self.width / Const.CHUNK_SIZE)))])
+        self.chunks = numpy.array([[Chunk(self.world, self.layer, (x, y)) for y in range(int(math.ceil(self.height / Const.CHUNK_SIZE)))] for x in range(int(math.ceil(self.width / Const.CHUNK_SIZE)))])
 
         # The outermost chunks are kept track of to calculate layer size and are updated whenever a chunk is created.
         self.leftmostChunk = (0, 0)
@@ -28,12 +28,14 @@ class WorldLayer(object):
         self.upmostChunk = (0, 0)
         self.downmostChunk = (0, 0)
 
-    def isValidCoords(self, (x, y)):
+    def isValidCoords(self, p):
         '''Returns True if the given block coords refer to a chunk that either can or does exist, False otherwise.'''
+        x, y = p
         return 0 <= x and x < self.width and 0 <= y and y < self.height
 
-    def isValidChunkCoords(self, (x, y)):
+    def isValidChunkCoords(self, p):
         '''Returns True if the given block coords refer to a chunk that either can or does exist, False otherwise.'''
+        x, y = p
         return 0 <= x and x < self.width/Const.CHUNK_SIZE and 0 <= y and y < self.height/Const.CHUNK_SIZE
 
     def isBlockLoaded(self, coords):

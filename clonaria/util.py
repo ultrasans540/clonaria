@@ -27,7 +27,7 @@ class Util(object):
             ("--seed STRING", "Specify a world seed to use. Uses system time by default.")
         ]
         for line in helpLines:
-            print "{:<16}\t{}".format(*line)
+            print("{:<16}\t{}".format(*line))
 
     @staticmethod
     def loadModels(modeltype):
@@ -48,24 +48,28 @@ class Util(object):
             elif 'defaultmodel' not in dict:
                 model.set('defaultmodel', defaultmodel)
 
-        print "Loaded {} {} models".format(counter, modeltype)
+        print("Loaded {} {} models".format(counter, modeltype))
         return models
 
     @staticmethod
     def circle(x, y, r):
         blocks = []
-        for ix in xrange(int(x-r), int(x+r)):
-            for iy in xrange(int(y-r), int(y+r)):
+        for ix in range(int(x-r), int(x+r)):
+            for iy in range(int(y-r), int(y+r)):
                 if (ix-x)**2 + (iy-y)**2 < r**2:
                     blocks.append((ix, iy))
         return blocks
 
     @staticmethod
-    def line((x, y), (x2, y2)):
+    def line(p1, p2):
         '''
         Returns a list of all block coordinates between the two points, inclusive, using Brensenham's line algorithm.
         From http://mail.scipy.org/pipermail/scipy-user/2009-September/022602.html
+
         '''
+        # Unpack the tuples
+        x, y = p1
+        x2, y2 = p2
         steep = 0
         coords = []
         dx = abs(x2 - x)
@@ -147,9 +151,9 @@ class Util(object):
         return tuple(map(int, map(math.floor, a)))
 
     @staticmethod
-    def getLineOfSightBlocks((dx, dy), world, loc, l=1, maxblocks=None, maxdistance=None):
+    def getLineOfSightBlocks(p, world, loc, l=1, maxblocks=None, maxdistance=None):
         '''Returns a list of all coordinates up to and including the first solid block found in 'world' on layer 'l' at 'loc' in the direction of the unit vector '(dx, dy)'.  Stops checking if maxdistance or maxblocks are specified and reached.  The returned list is ordered from closest to farthest.'''
-
+        dx, dy = p
         blocks = []
 
         # Special case: Direction is zero. Return current block.
@@ -182,8 +186,9 @@ class Util(object):
         return blocks
 
     @staticmethod
-    def getClosestSolidBlock((dx, dy), world, loc, l=1, maxdistance=None):
+    def getClosestSolidBlock(p, world, loc, l=1, maxdistance=None):
         '''Returns the coordinates of the closest solid block in 'world' on layer 'l' at 'loc' in the direction of the unit vector '(dx, dy)'.  Stops checking if maxdistance is specified and reached.'''
+        dx, dy = p
         blocks = Util.getLineOfSightBlocks((dx, dy), world, loc, l, maxdistance=maxdistance)
         if len(blocks) == 0: return None
         else: return blocks[-1]
@@ -192,8 +197,8 @@ class Util(object):
     def getNearbySolidBlocks(entity):
         bb = entity.shape.getAABB(entity.body.transform, 0)
         blocks = []
-        for x in xrange(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
-            for y in xrange(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
+        for x in range(int(bb.lowerBound[0] - 1), int(bb.upperBound[0] + 2)):
+            for y in range(int(bb.lowerBound[1] - 1), int(bb.upperBound[1] + 2)):
                 if entity.world.isSolidAt((x, y)):
                     blocks.append(Util.int_floor((x, y)))
         return blocks
@@ -203,8 +208,8 @@ class Util(object):
         '''Returns the blocks around (in square formation) the given block coordinates within the given range r, not including the center block.'''
         x, y = Util.int_floor(coords)
         blocks = []
-        for bx in xrange(x-r, x+r+1):
-            for by in xrange(y-r, y+r+1):
+        for bx in range(x-r, x+r+1):
+            for by in range(y-r, y+r+1):
                 blocks.append((bx, by))
         blocks.remove(coords)
         return blocks
@@ -232,34 +237,39 @@ class Util(object):
         return (State().window.width / 2, State().window.height / 2)
 
     @staticmethod
-    def blocksToPixels((bx, by)):
+    def blocksToPixels(p):
         '''Returns the on-screen pixel coordinates to the lower left corner pixel of the given block'''
+        bx, by = p
         camX, camY = State().cameraPos
         px = (bx - camX) * Const.PPB * Const.ZOOM + (State().window.width / 2)
         py = (by - camY) * Const.PPB * Const.ZOOM + (State().window.height / 2 + 1)
         return (px, py)
 
     @staticmethod
-    def pixelsToBlocks((px, py)):
+    def pixelsToBlocks(p):
         '''Returns the world coordinates of the block at the given on-screen pixel coordinates'''
+        px, py = p
         camX, camY = State().cameraPos
         bx = math.floor((math.floor(px) - (State().window.width / 2)) / Const.PPB / Const.ZOOM + camX)
         by = math.floor((math.floor(py) - (State().window.height / 2)) / Const.PPB / Const.ZOOM + camY)
         return (bx, by)
 
     @staticmethod
-    def blocksToChunks((x, y)):
+    def blocksToChunks(p):
         '''Returns the coordinates of the chunk containing the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        x, y = p
         return (x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE)
 
     @staticmethod
-    def chunksToBlocks((x, y)):
+    def chunksToBlocks(p):
         '''Returns the coordinates of the lower-left-most block in the chunk at the given chunk coords.'''
+        x, y = p
         return (x*Const.CHUNK_SIZE, y*Const.CHUNK_SIZE)
 
     @staticmethod
-    def getInChunkCoords((x, y)):
+    def getInChunkCoords(p):
         '''Returns the in-chunk coordinates of the block at the given coords.  Does not guarantee that the chunk exists, just that that block would mathematically be there.'''
+        x, y = p
         return (x%Const.CHUNK_SIZE, y%Const.CHUNK_SIZE)
 
     @staticmethod
@@ -272,8 +282,8 @@ class Util(object):
 
         blocks = []
 
-        for y in xrange(int(camY - blocksOutVert), int(camY + blocksOutVert)):
-            for x in xrange(int(camX - blocksOutHor), int(camX + blocksOutHor)):
+        for y in range(int(camY - blocksOutVert), int(camY + blocksOutVert)):
+            for x in range(int(camX - blocksOutHor), int(camX + blocksOutHor)):
                 blocks.append((x, y))
 
         return blocks
@@ -284,8 +294,9 @@ class Util(object):
         return coords in Util.getOnscreenBlocks()
 
     @staticmethod
-    def isBlockOnScreen2((x, y)):
+    def isBlockOnScreen2(p):
         '''Returns True if the block at the given coordinates is on the screen.'''
+        x, y = p
         window = State().window
         camX, camY = State().cameraPos
         blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1
@@ -313,8 +324,8 @@ class Util(object):
         ymin = int(max(camY - blocksOutVert, 0))
         ymax = int(min(camY + blocksOutVert, world.height))
 
-        for y in xrange(ymin, ymax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
-            for x in xrange(xmin, xmax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
+        for y in range(ymin, ymax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
+            for x in range(xmin, xmax+Const.CHUNK_SIZE, Const.CHUNK_SIZE):
                 chunks.add((x//Const.CHUNK_SIZE, y//Const.CHUNK_SIZE))
 
         return chunks
@@ -325,8 +336,9 @@ class Util(object):
         return coords in Util.getOnscreenChunks()
 
     @staticmethod
-    def isChunkOnScreen2((cx, cy)):
+    def isChunkOnScreen2(p):
         '''Returns True if the chunk at the given coordinates is on the screen.'''
+        cx, cy = p
         window = State().window
         camX, camY = State().cameraPos
         blocksOutHor = window.width / 2 / Const.ZOOM / Const.PPB + 1 + Const.CHUNK_SIZE
@@ -370,7 +382,7 @@ class Util(object):
         '''Updates the cache of edges to be used for physics calculations given a list of edges in (vertices, location) format to use.  EdgePhysics objects are created and deleted as necessary.'''
 
         # Stop simulating edges that are no longer relevant.
-        for oldEdgeCoord, oldEdgePhysics in State().physics_edgePhysics.items():
+        for oldEdgeCoord, oldEdgePhysics in list(State().physics_edgePhysics.items()):
             if oldEdgeCoord not in newEdgeCoords:
                 State().space.DestroyBody(oldEdgePhysics.body)
                 del State().physics_edgePhysics[oldEdgeCoord]
@@ -435,14 +447,15 @@ class Util(object):
         pyglet.graphics.draw(len(points), pyglet.gl.GL_POLYGON, *data)
 
     @staticmethod
-    def blockToSquarePoints((x, y)):
+    def blockToSquarePoints(p):
         '''Returns a list of points that describe the square at the given coordinates.'''
+        x, y = p
         return [(x, y), (x+1, y), (x+1, y+1), (x, y+1)]
 
     @staticmethod
     def polygonPointsToLines(polygon):
         '''Converts a list of polygon point tuples to a list of polygon line tuples.'''
         lines = []
-        for i in xrange(len(polygon)):
+        for i in range(len(polygon)):
             lines.append((polygon[i-1], polygon[i]))
         return lines
