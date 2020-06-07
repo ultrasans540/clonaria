@@ -1,4 +1,0 @@
-Box2D==2.3.10
-numpy==1.18.5
-pyglet==1.5.5
-PyYAML==5.3.1
